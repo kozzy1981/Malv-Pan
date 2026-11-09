@@ -147,6 +147,58 @@ In Chrome DevTools:
    cache separately from the first cold visit. No improved score or confirmed
    cause of TBT is claimed without those browser measurements.
 
+## Quality review (ST-07)
+
+Retained native controls and the existing landmark/heading structure, labelled
+inputs, skip link, focus indicators, result status and error alert. Product
+thumbnails intentionally have empty alternatives because their adjacent linked
+headings provide the same information; the brand logo retains its useful alt text.
+
+Unavailable option suffixes are now shorter, reducing unnecessary popup width.
+Category/technology controls have explicit labels, bounded closed-control widths
+and wrapping full selected values below the row. Those values sit outside labels
+so they do not become part of the controls' accessible names. Result updates name
+the collection, announce no matches and distinguish retained results after errors.
+
+Native select popups are rendered by the browser/OS. In desktop device emulation
+they can extend outside the emulated viewport; CSS on the page cannot reliably
+constrain or wrap them. Closed controls remain constrained by the form layout.
+Inspect the reported 375px popup and 768px long-label cases on real devices too.
+No custom dropdown, CSS overflow masking or shortened source titles were added.
+
+The 31 unit tests already cover combined filters, sorting, compatibility/reset,
+empty sets, invalid parameters and source preservation. Four HTTP integration
+tests add coverage of actual status codes, response headers, query wiring and
+JSON errors. To repeat them, start a production server in one terminal:
+
+```powershell
+npm run build
+npm start -- --port 3002
+```
+
+Then, in another terminal:
+
+```powershell
+npm test
+npm run test:api
+```
+
+`PRODUCT_API_URL` can override the integration-test origin if needed. TypeScript,
+ESLint, 31 unit tests, four production HTTP tests and the production build passed
+during ST-07. Static rendered-HTML checks verified labels, unique IDs, ARIA
+references, headings, skip target and lazy optimised images; sampled text colour
+pairs passed numerical AA contrast checks. Static checks do not exercise native
+popups, focus movement or announcements. The existing Node module-detection warning
+remains; no runtime or test failure accompanied it.
+
+Manual acceptance still required: keyboard-only use (including disclosure, skip,
+disabled options and retry), screen-reader result/error announcements, 375px/768px
+dropdown cases, other ST-06 widths, 200% text resizing and 400% zoom. Rerun WAVE
+and Lighthouse on production, using comparable settings and warm/cold image-cache
+runs as documented above. No manual browser, screen-reader or Lighthouse pass was
+performed for ST-07; full WCAG conformance or unchanged performance scores are not
+claimed. Image optimisation/cache configuration and request frequency were preserved.
+
 ## Products API (ST-03)
 
 `GET /api/products` returns HTTP 200 with `{ "products": [...], "total": 46 }`.

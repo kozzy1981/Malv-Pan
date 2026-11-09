@@ -107,7 +107,7 @@ modelling the source; do not invent replacement content.
 | ST-04 | Page Structure & Components | 35 minutes | Planned | Build the header, hero, listing controls and reusable cards from the supplied designs; present source content and link cards to source URLs. Acceptance: developer checks page structure, component responsibilities and source-backed content. Interactive behaviour belongs to ST-05; responsive refinement and visual checks across widths belong to ST-06. |
 | ST-05 | Interactive Product Listing | 30 minutes | Implemented; awaiting acceptance | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
 | ST-06 | Responsive Design | 30 minutes | Implemented; awaiting acceptance | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
-| ST-07 | Accessibility, Testing & Refinement | 15 minutes | Planned | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
+| ST-07 | Accessibility, Testing & Refinement | 15 minutes | Implemented; awaiting acceptance | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
 | ST-08 | Deployment & Documentation | 15 minutes | Planned | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
 
 ## Decisions still needed
@@ -251,3 +251,96 @@ Manual acceptance at 375px, 768px, 1024px and 1440px (and between breakpoints):
 
 Full accessibility conformance and device-specific visual behaviour are not
 claimed from stylesheet or query tests.
+
+## ST-07 implementation notes
+
+Implemented for manual acceptance within the focused quality-review scope; do not
+begin ST-08. The original allocation remains 15 minutes.
+
+- Reviewed landmarks, heading hierarchy, labels/names, focus rules, native
+  keyboard semantics, disabled options, image alternatives, status/error handling,
+  text colours and touch-target rules. Kept the existing semantic structure and
+  empty product-thumbnail alternatives: adjacent linked titles already identify
+  them. The informative brand-logo alternative remains.
+- Shortened disabled option suffixes to `(unavailable)` while retaining complete
+  source titles and native disabled attributes. Explicit category/technology
+  labels stay separate from wrapping selected-value text below the control row.
+  Closed fields are bounded to their container. This reduces application-driven
+  width/label issues without replacing native selects or hiding overflow.
+- The expanded popup at 375px and awkward label at 768px involve native UI whose
+  sizing/wrapping depends on the browser/OS, especially desktop device emulation.
+  CSS cannot guarantee popup containment. The full selected title is now readable
+  in page content even when the closed select truncates it. Real-device/manual
+  checks remain necessary; those observations are not claimed fully resolved.
+- Result-status messages now identify the collection, explain zero matches and
+  label retained counts as previous results after failures. Existing error alerts,
+  retry, reset, request cancellation and normal focus order are preserved.
+- Existing 31 tests already cover filtering/sorting, combined queries, compatibility
+  and resets, empty results, invalid parameters and source preservation. Added four
+  separate production HTTP integration tests for route wiring, JSON/status/error
+  contracts and unchanged source collections. Run `npm run test:api` against a
+  running server (default localhost:3002); normal unit tests need no server.
+- Validation passed: TypeScript, ESLint, 31 unit tests, four production HTTP tests
+  and production build. Rendered HTML checks found one main/page heading, five
+  labelled controls, unique IDs, valid ARIA references, a skip target, the logo
+  alternative and 46 lazy optimised thumbnails. Sampled text/background contrast
+  ratios were 6.08:1 or higher. These are focused checks, not a full accessibility
+  scan, interactive-browser verification or proof of WCAG conformance.
+- No image optimisation/cache, source data, API behaviour, filtering/sorting,
+  dependencies or request-frequency changes. No performance regression was apparent
+  from code inspection, but Lighthouse and scroll measurements were not repeated.
+
+Manual acceptance: keyboard-only navigation and skip link; native dropdown opening,
+disabled-option behaviour and long selected titles at 375px/768px; all ST-06 widths
+and zoom checks; screen-reader loading/empty/error updates; blocked-request retry;
+WAVE and Lighthouse against production. No manual browser, screen-reader or
+Lighthouse results are claimed for this pass. Git operations remain developer-owned.
+
+### Developer-reported ST-07 manual audit
+
+The developer supplied the following production results after the implementation
+pass; these were not independently rerun by the agent:
+
+| Audit | Performance | Accessibility | Best Practices | SEO |
+| --- | --- | --- | --- | --- |
+| Lighthouse desktop | 100 | 100 | 100 | 100 |
+| Lighthouse mobile | 98 | 100 | 100 | 100 |
+
+WAVE: **0 accessibility errors, 0 contrast errors, 3 alerts** (two orphaned form
+labels and one redundant link); reported AIM score **10/10**. These favourable
+automated scores do not establish full WCAG conformance or replace keyboard and
+screen-reader checks.
+
+Alert investigation against current source and production-prerendered HTML:
+
+- The developer clarified that the two label alerts target **Display** and
+  **Sort** on initial load, with Products and Original order selected. These are
+  the intended defaults. The earlier category/technology hypothesis does not
+  describe the reported alerts.
+- Display and Sort already had valid implicit associations through wrapping
+  labels. Added explicit associations as a small robustness refinement:
+  `label[for="listing-mode"]` targets `select#listing-mode`, and
+  `label[for="listing-sort"]` targets `select#listing-sort`. The labels and
+  controls remain visually unchanged; no redundant ARIA names or extra labels
+  were added. Category and Technology retain their valid explicit associations;
+  Search retains its valid wrapping label. WAVE must be rerun before claiming
+  the two alerts are resolved; the original associations were not proven invalid.
+- The only duplicate destination found in the prerendered links is `/`:
+  `SiteHeader.tsx`'s `a.brand-link` (Malvern Panalytical home), and
+  `ProductsHero.tsx`'s breadcrumb `a[href="/"]` (Home). This is the apparent
+  redundant-link pair; WAVE's precise flagged node still requires its element
+  details. They serve distinct brand-navigation and breadcrumb contexts with
+  meaningful names. Retaining them is an accepted duplication, with no demonstrated
+  usability defect requiring their removal.
+
+The initial follow-up was documentation-only. Following the developer's label
+identification, `ProductListing.tsx` also received the two explicit associations.
+Manual follow-up: rerun WAVE on a refreshed production page in its default state,
+check Display/Sort accessible names and click-to-focus behaviour, and retain the
+accepted home-link duplication and native popup/browser limitations. ST-08 has
+not begun.
+
+Explicit-label follow-up validation: TypeScript, ESLint, all 31 unit tests and
+the production build passed. Production HTML confirms one explicit label and
+one matching select for each of `listing-mode` and `listing-sort`. WAVE was not
+rerun by the agent.

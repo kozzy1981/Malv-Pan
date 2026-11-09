@@ -315,12 +315,14 @@ a.product-card-content:hover h3 {
   display: flex;
   flex: 1 1 12rem;
   min-width: 0;
+  max-width: 100%;
   flex-direction: column;
   gap: 0.375rem;
   font-weight: 700;
 }
 .listing-field input, .listing-field select {
   width: 100%;
+  max-width: 100%;
   min-height: 2.75rem;
   min-width: 0;
   padding: 0.5rem;
@@ -330,6 +332,13 @@ a.product-card-content:hover h3 {
   color: var(--text-colour);
   font: inherit;
   font-weight: 400;
+}
+.selected-filter-value {
+  margin: 0.5rem 0 0;
+  color: var(--muted-text);
+  font-size: 0.875rem;
+  font-weight: 400;
+  overflow-wrap: anywhere;
 }
 .listing-field select:disabled {
   color: #505b5e;

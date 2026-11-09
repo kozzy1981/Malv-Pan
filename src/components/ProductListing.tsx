@@ -101,19 +101,28 @@ export function ProductListing({ products, categoryOptions, technologyOptions }:
     void loadResults({ ...controls, mode, category: "", technology: "" });
   }
 
+  let statusMessage = `${result.total} ${modeLabels[result.mode].toLowerCase()}`;
+  if (isLoading) {
+    statusMessage = `Loading ${modeLabels[controls.mode].toLowerCase()}…`;
+  } else if (errorMessage) {
+    statusMessage = `${result.total} previous ${modeLabels[result.mode].toLowerCase()}`;
+  } else if (result.total === 0) {
+    statusMessage += ". No matches found.";
+  }
+
   return (
     <section id="products" className="product-listing content-width" aria-labelledby="listing-heading">
       <form className="listing-controls" onSubmit={handleSearchSubmit}>
         <div className="listing-control-row">
-          <label className="listing-field">
+          <label className="listing-field" htmlFor="listing-mode">
             Display
-            <select value={controls.mode} onChange={(event) => handleModeChange(event.target.value as ListingMode)}>
+            <select id="listing-mode" value={controls.mode} onChange={(event) => handleModeChange(event.target.value as ListingMode)}>
               {Object.entries(modeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
           </label>
-          <label className="listing-field">
+          <label className="listing-field" htmlFor="listing-sort">
             Sort
-            <select value={controls.sort} aria-describedby="popularity-note" onChange={(event) => {
+            <select id="listing-sort" value={controls.sort} aria-describedby="popularity-note" onChange={(event) => {
               void loadResults({ ...controls, sort: event.target.value });
             }}>
               <option value="">Original order</option>
@@ -136,9 +145,9 @@ export function ProductListing({ products, categoryOptions, technologyOptions }:
                 setControls({ ...controls, search: event.target.value });
               }} />
             </label>
-            <label className="listing-field">
-              Category
-              <select value={controls.category} disabled={controls.mode !== "products"} aria-describedby="product-filter-note" onChange={(event) => {
+            <div className="listing-field">
+              <label htmlFor="category-filter">Category</label>
+              <select id="category-filter" value={controls.category} disabled={controls.mode !== "products"} aria-describedby="product-filter-note" onChange={(event) => {
                 handleProductFilterChange("category", event.target.value);
               }}>
                 <option value="">All categories</option>
@@ -146,14 +155,14 @@ export function ProductListing({ products, categoryOptions, technologyOptions }:
                   const unavailable = filterAvailability.categoryTitles !== null &&
                     !filterAvailability.categoryTitles.has(title.trim().toLowerCase());
                   return <option key={title} value={title} disabled={unavailable}>
-                    {title}{unavailable ? " (unavailable with this technology)" : ""}
+                    {title}{unavailable ? " (unavailable)" : ""}
                   </option>;
                 })}
               </select>
-            </label>
-            <label className="listing-field">
-              Technology
-              <select value={controls.technology} disabled={controls.mode !== "products"} aria-describedby="product-filter-note" onChange={(event) => {
+            </div>
+            <div className="listing-field">
+              <label htmlFor="technology-filter">Technology</label>
+              <select id="technology-filter" value={controls.technology} disabled={controls.mode !== "products"} aria-describedby="product-filter-note" onChange={(event) => {
                 handleProductFilterChange("technology", event.target.value);
               }}>
                 <option value="">All technologies</option>
@@ -161,19 +170,22 @@ export function ProductListing({ products, categoryOptions, technologyOptions }:
                   const unavailable = filterAvailability.technologyTitles !== null &&
                     !filterAvailability.technologyTitles.has(title.trim().toLowerCase());
                   return <option key={title} value={title} disabled={unavailable}>
-                    {title}{unavailable ? " (unavailable with this category)" : ""}
+                    {title}{unavailable ? " (unavailable)" : ""}
                   </option>;
                 })}
               </select>
-            </label>
+            </div>
             <button type="submit">Search</button>
           </div>
+          {/* Keep full selected titles readable without enlarging native controls or their labels. */}
+          {controls.category && <p className="selected-filter-value">Category: {controls.category}</p>}
+          {controls.technology && <p className="selected-filter-value">Technology: {controls.technology}</p>}
           <p id="product-filter-note" className="control-note">Category and technology filters apply to Products only. Unavailable combinations are disabled; an incompatible selection resets to All. Search text applies when you press Search, Enter or change a selection.</p>
         </details>
       </form>
       <div className="listing-heading">
         <h2 id="listing-heading">{modeLabels[result.mode]}</h2>
-        <p role="status">{isLoading ? "Loading results…" : `${result.total} results`}</p>
+        <p role="status">{statusMessage}</p>
       </div>
       {errorMessage && (
         <div className="listing-error">

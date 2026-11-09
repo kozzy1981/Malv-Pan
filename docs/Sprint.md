@@ -22,20 +22,20 @@ are assignment requirements, not story definitions.
 
 ## Time limit and priorities
 
-The original core budget is **four hours (240 minutes)**: ST-00 planning and
-environment preparation was allocated **60 minutes**, and ST-01 through ST-08
-total **180 minutes**. ST-00 is preparation outside the eight implementation
-stories. These are agreed allocations, not measured elapsed times.
+The visible assessment brief suggests approximately **2-4 hours**. Use the
+developer's actual time log for reporting effort:
 
-The assessment's separate overall maximum is **eight hours, including
-AI-assisted work**. It does not replace or expand the original story budgets.
-Track actual time spent and report unfinished work; do not assume the full
-budget remains after ST-01 and preparation.
+| Work | Recorded time |
+| --- | --- |
+| ST-00 planning and preparation | 60 minutes |
+| ST-01-ST-07 implementation, manual review, testing and refinement | 205 minutes |
+| Total through ST-07 | **265 minutes (4 hours 25 minutes)** |
+| ST-08 | Pending recording |
 
-The PDF has inconsistent timing content: its rendered pages show an expected
-2-4 hours, while extracted text also contains a 4-8 hour estimate and an explicit
-eight-hour maximum. Use the developer's eight-hour cap for this sprint and note
-the discrepancy rather than silently rewriting the brief.
+The recorded time includes AI-assisted development, troubleshooting, manual
+verification and review, not just coding. No final total is available until ST-08
+time is recorded. Story budgets below are historical planning estimates, not
+recorded actuals. Hidden PDF text is not used as submission timing guidance.
 
 Prioritise a faithful responsive page and a working API with server-side filtering
 and sorting. Use remaining time for accessibility, robustness and meaningful
@@ -108,7 +108,7 @@ modelling the source; do not invent replacement content.
 | ST-05 | Interactive Product Listing | 30 minutes | Implemented; awaiting acceptance | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
 | ST-06 | Responsive Design | 30 minutes | Implemented; awaiting acceptance | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
 | ST-07 | Accessibility, Testing & Refinement | 15 minutes | Implemented; awaiting acceptance | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
-| ST-08 | Deployment & Documentation | 15 minutes | Planned | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
+| ST-08 | Deployment & Documentation | 15 minutes | Prepared; developer deployment pending | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
 
 ## Decisions still needed
 
@@ -344,3 +344,95 @@ Explicit-label follow-up validation: TypeScript, ESLint, all 31 unit tests and
 the production build passed. Production HTML confirms one explicit label and
 one matching select for each of `listing-mode` and `listing-sort`. WAVE was not
 rerun by the agent.
+
+
+## ST-08 delivery preparation
+
+ST-01 through ST-07 were confirmed implemented and manually accepted by the
+ developer before this story. ST-08 documentation/readiness work is prepared for
+review; the developer owns all Git work and actual deployment. No Vercel account,
+project settings or hosted application were accessed or verified by the agent.
+The original 15-minute story allocation remains an allocation, not elapsed time.
+
+Files changed: README.md was finalised around the completed prototype, and this
+sprint record was extended. Application source, configuration, dependencies,
+original resources and AGENTS.md were not changed.
+
+### Documentation and readiness
+
+- README covers overview/features, Node/npm prerequisites, setup, all validation
+  commands, API contract, architecture/data decisions, responsive/accessibility
+  behaviour, image optimisation, testing, limitations, improvement proposal and
+  manual Vercel deployment. Prior story evidence remains in this sprint history.
+- AI disclosure states ChatGPT supported planning/story breakdown/review, Codex
+  assisted implementation/testing/documentation, and the developer manually
+  reviewed/tested/accepted the work. No AI or automated check substitutes for the
+  developer's ability to explain the code.
+- Standard Next.js App Router configuration and npm scripts are suitable for
+  Vercel. No static export, custom server, deployment file or runtime secrets are
+  needed. The JSON is imported at build time, avoiding machine-specific runtime
+  filesystem paths. Remote images are restricted to their source HTTPS host.
+- Recommend Node 26.x in the Vercel dashboard, matching local Node 26.13.0/npm
+  11.20.0 validation. Vercel's supported-version documentation lists 26.x; no
+  package engine/configuration change was necessary.
+- The app has no environment-variable requirements. PRODUCT_API_URL is an optional
+  integration-test origin only. Do not deploy development NODE_ENV overrides.
+- Read-only file/index inspection (without Git commands) found the lockfile and
+  original source JSON in the index and no application/resource/test files missing
+  from it at inspection time. No tracked generated output, cache, backup, private
+  key or environment-file paths were found. Generated build/cache folders and
+  local environment secrets are covered by existing ignore rules.
+- Common secret-pattern checks found no matches in inspected text files; no local
+  environment files or machine-specific paths were found in application/config
+  inputs. This is a limited pattern scan, not proof that secrets cannot exist.
+  README's previous local installation path was replaced by portable setup and
+  canonical-path guidance. AGENTS.md's SHA-256 was checked unchanged.
+- Windows manual-build failures were reproduced earlier from differently cased
+  working directories. Both engines passed from the canonical path; README now
+  explains that correction. No dependency upgrade, reinstall or failure-suppression
+  workaround was introduced.
+
+### Final local validation (9 November 2026)
+
+| Command/check actually executed | Result |
+| --- | --- |
+| `node --version` / `npm.cmd --version` | PASS: v26.13.0 / 11.20.0 |
+| `npm.cmd ls next react react-dom` | PASS: Next 16.4.5, React/React DOM 19.3.1; deduplicated |
+| `.\node_modules\.bin\tsc.cmd --noEmit --incremental false` | PASS, exit 0 |
+| `npm.cmd run lint` | PASS, exit 0; no ESLint warnings |
+| `npm.cmd test` | PASS: 31 tests, no failures/skips |
+| `npm.cmd run build` | PASS: normal Turbopack production build, including static generation |
+| `npm.cmd start -- --port 3002` | PASS: local production server started |
+| `npm.cmd run test:api` | PASS: four production HTTP integration tests, no failures/skips |
+
+The temporary production server was stopped after testing. Node emitted the
+existing MODULE_TYPELESS_PACKAGE_JSON warning while importing TypeScript in unit
+tests; all tests passed. No fresh registry audit was run. The initial eight
+moderate development-tool findings and ESLint 9 support limitation remain recorded,
+without claiming they were re-audited or resolved. Previous developer-reported
+Lighthouse/WAVE scores remain historical local evidence, not deployed results.
+
+### Remaining developer actions
+
+1. Review README and the final files; record ST-08 time and then calculate the
+   final total. Recorded effort through ST-07 is 4 hours 25 minutes, including
+   planning, AI-assisted work, troubleshooting, manual verification and review.
+2. Review Vercel settings before pushing main if Git integration may auto-deploy.
+   Commit/push the intended state yourself. Import the existing GitHub repository
+   if not linked; select Next.js, repository root, Node 26.x, npm ci, npm run build
+   and the default output directory. No application environment variables are needed.
+3. Deploy the reviewed revision yourself. Check logs, runtime settings and account
+   quotas, then record the real deployment URL. No deployment is performed here.
+4. On that URL, verify four mode counts, combined filtering/search/sort, reset,
+   disabled options, loading/no-match/error/retry states and source links. Check
+   cold/warm optimised image responses and upstream availability.
+5. Recheck desktop/mobile/intermediate layouts, keyboard/skip/focus, screen-reader
+   announcements, native dropdowns, zoom, WAVE and production Lighthouse. In
+   particular, rerun WAVE after the explicit Display/Sort label changes. Retained
+   home-link duplication and native popup limits are documented, not hidden.
+
+Outstanding limitations: popularity needs an authoritative source mapping; official
+brand assets should replace the screenshot crop/system-font approximation when
+available; hosted image behaviour, account settings, ST-08 time and deployed
+acceptance remain unverified. No full WCAG conformance or production readiness
+beyond the assessment prototype is claimed. Stop for developer review.

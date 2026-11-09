@@ -1,263 +1,264 @@
-# Malvern Panalytical technical exercise
+# Malvern Panalytical product listing
 
-ST-01 establishes a Next.js App Router application with React, TypeScript,
-Tailwind CSS and ESLint. Application source lives in `src/`; `@/*` maps to `src/*`.
+A responsive Next.js assessment prototype using the original supplied product JSON
+and independently implemented presentation based on the supplied screenshots.
+It has a server-rendered initial listing and a small read-only API for interactions.
+No CMS, database, authentication or separate backend is required.
 
-## Run locally
+## Features
 
-Use Node.js 20.9 or newer (an actively supported LTS release is recommended)
-and npm. The initial baseline was validated with Node.js 26 and npm 11.
+- Products (46), Categories (36), Technologies (19) and Measurement Types (50).
+- Search, category/technology filters, A-Z/Z-A sorting, reset and mobile filter disclosure.
+- Context-aware native dropdowns: incompatible options stay visible but disabled;
+  incompatible selections reset to All. Search does not restrict available options.
+- Loading, empty and error states, retry and cancellation of superseded requests.
+- Responsive cards, source-site links and optimised lazy product images.
+- Accessibility targets WCAG 2.2 AA; automated scores are not a conformance claim.
+
+Popularity sorting/badges are intentionally unavailable: the data has no confirmed
+popularity metric. `productOrderNumber` is not silently interpreted as popularity.
+
+## Prerequisites and local setup
+
+Use Node.js **26.x** and npm to match the validated environment (Node 26.13.0,
+npm 11.20.0). Next.js requires Node 20.9+, but the test runner's native TypeScript
+support requires a newer Node release; Node 26 is the recommended common baseline.
+Install dependencies from the checked-in npm lockfile:
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Stop the server with Ctrl+C.
+Open http://localhost:3000. Stop the server with Ctrl+C. No application environment
+variables or credentials are required. Ensure Node/npm are on your terminal's PATH.
+The optional `PRODUCT_API_URL` variable is only an integration-test server origin.
 
-If Node.js is installed at `D:\Apps\Node` but missing from your terminal's PATH,
-add it for the current PowerShell session before running the commands:
+### Windows path-casing troubleshooting
+
+Use the actual casing of the checkout directory when opening it in your editor or
+terminal. Builds from a differently cased path reproduced null `useContext` errors
+in both Turbopack and Webpack; the same builds passed from the canonical path.
+Webpack identified duplicate module identities differing only in path casing,
+despite a single installed React copy. No dependency change was needed.
+
+If affected, stop other Next.js processes and switch to the canonical path:
 
 ```powershell
-$env:PATH = 'D:\Apps\Node;' + $env:PATH
-```
-
-## Validate and run production output
-
-```powershell
-npm run lint
+$canonicalProjectPath = node -p "require('node:fs').realpathSync.native(process.cwd())"
+Set-Location ..
+Set-Location -LiteralPath $canonicalProjectPath
+node -p "process.cwd()"
 npm run build
-npm start
 ```
 
-Linting is a separate check because Next.js 16 does not run ESLint during builds.
-The build also checks TypeScript. `npm start` requires a successful build first.
+Do not use `--debug-prerender` output as a production deliverable. Do not run
+concurrent builds or build while serving production output from the same `.next`.
 
-`src/app/page.tsx` defines `/`, and `src/app/layout.tsx` supplies the shared HTML
-document and metadata. The page reads `getProducts()` on the server and passes
-initial records to an interactive, server-prerendered listing; hydration does not
-trigger an internal API request. Subsequent control changes use the listing API.
-Global styles load Tailwind through PostCSS.
+## Commands and validation
 
-Generated output, dependencies and local `.env*` files are ignored. Commit the
-npm lockfile to preserve the resolved dependency versions.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npx --no-install tsc --noEmit --incremental false` | TypeScript check without generated incremental state |
+| `npm run lint` | ESLint; warnings fail the check |
+| `npm test` | 31 unit tests; no server needed |
+| `npm run build` | Normal Turbopack production build, including TypeScript |
+| `npm start` | Serve a successful production build |
+| `npm run test:api` | Four HTTP integration tests against localhost:3002 by default |
 
-## Listing presentation (ST-04)
-
-The homepage renders all 46 source records in their original order. Reusable
-header, hero, listing and card components establish four-column desktop,
-three-column small-desktop, two-column tablet and single-column mobile layouts; mobile cards place images
-beside their copy. ST-05 adds native listing controls. Popularity and its badges
-remain unavailable until a source mapping is confirmed.
-
-Product links resolve the supplied relative URLs against
-`https://www.malvernpanalytical.com`, matching the JSON's `metadata.sourceUrl`.
-They open in the current tab. No local detail routes or product URLs are invented.
-Missing image URLs show a placeholder, blank descriptions are omitted and missing
-destination URLs render a non-linked card. Product images use Next.js's built-in
-optimiser with a narrowly allowed HTTPS source host, responsive `sizes` matching
-the grid, and native lazy loading. The fixed image regions and `object-fit: contain`
-preserve layout and aspect ratios. Only the small header logo is prioritised;
-product thumbnails remain lazy-loaded.
-
-The default Next.js image cache and TTL are unchanged. Generated variants are
-cached under `.next/cache/images`; their expiry follows the larger of Next.js's
-minimum TTL and the upstream cache lifetime. The source host must be accessible
-from the Next.js server on a cold cache. No custom cache or local copies of the
-product assets are used.
-
-The logo in `public/images/` was cropped from supplied reference `resources/3.png`;
-the original remains untouched. No standalone brand font, logo or hero-pattern
-asset was supplied. Arial/system sans-serif and a dark gradient approximate the
-reference; the header includes working home/product navigation and a source-site
-link rather than non-functional site-wide controls.
-
-Accessibility targets WCAG 2.2 AA: semantic landmarks and lists, one page heading,
-a skip link, named product links, image alternatives, visible two-colour focus
-indicators, wrapping text and no sticky content. Links have generous target areas
-(header links at least 24px high; primary navigation 44px high). Text colours were
-checked numerically against their backgrounds. This is not a full conformance
-claim: browser, screen-reader, zoom and keyboard acceptance remain necessary.
-
-Manual acceptance at http://localhost:3000:
-
-1. Inspect at 1440px, 768px, 390px and 320px widths, plus intermediate widths;
-   verify 4/2/1 columns at those widths (three columns at 1024px), readable cards,
-   contained images and no horizontal scrolling. Controls stack below 640px.
-2. Check all 46 cards and a few names/descriptions/images against the JSON.
-   Follow a card and confirm it reaches the corresponding source website page.
-3. Start with Tab: the skip link must become visible. Press Enter and verify the
-   main content receives focus; subsequent Tab presses should reach the breadcrumb
-   and each card, with a visible outline. Shift+Tab should work in reverse.
-4. Check 200% text enlargement and 400% browser zoom (1280px viewport gives an
-   effective 320px width). Confirm no clipped content, overlapping links or lost
-   functionality. Check the page with a screen reader for meaningful heading,
-   list, image and link announcements.
-
-Browser automation was unavailable during ST-04 validation. HTTP/HTML checks
-verified the rendered cards, source URLs, headings, skip target and image alt
-attributes; these checks cannot establish visual or full accessibility compliance.
-
-### Image performance verification
-
-The earlier `unoptimized` setting sent full-resolution originals to browsers.
-Three sampled sources were 7.3-26.5 MB and 4912-6436px wide, despite card images
-being only a few hundred CSS pixels wide. Their upstream responses already sent
-`Cache-Control: max-age=2592000, public`. That supports network reuse, but does not
-prevent large decoded images consuming memory or needing to be decoded again.
-There is no scroll observer, client state, unstable key or list virtualisation
-that deliberately remounts images during scrolling. No scroll-linked animation,
-backdrop filter, fixed background or persistent card shadow was found.
-
-Production HTTP checks after enabling optimisation produced 384px-wide WebP
-variants of 7.8-16.5 KB for those same three sources. Each returned
-`x-nextjs-cache: MISS` then `HIT`, with a 30-day `Cache-Control` max-age inherited
-from upstream. All 46 source URLs match the allowlist; a different host was
-rejected with HTTP 400. This verifies sampled server optimisation/cache behaviour,
-not browser scroll performance or every source asset's availability.
-
-For a fair production comparison, stop `npm run dev`, run `npm run build`, then
-`npm start`. Alternatively, keep development running and use
-`npm start -- --port 3002` after building. Compare the same viewport, device scale,
-throttling and extensions. Development includes compilation, hot reload and dev
-tooling overhead; Lighthouse TBT alone cannot identify the source of scroll lag.
-Do not compare a cold production image cache with a warm development cache.
-
-In Chrome DevTools:
-
-1. In Network, leave **Disable cache unchecked**, filter by **Img**, and scroll
-   down then back up. Product requests should use `/_next/image?url=...&w=...&q=75`
-   with appropriately sized `srcset` candidates, rather than fetching originals
-   directly from the asset host. Native lazy loading may fetch near-screen images
-   before they are visible.
-2. Inspect transferred bytes, response dimensions, `Cache-Control` and
-   `x-nextjs-cache`. A new optimised variant may be `MISS`, then `HIT` on another
-   server request; the browser can instead serve memory/disk cache without making
-   that request. Width, quality and negotiated format identify different variants.
-   A changed viewport or device scale can legitimately select another width.
-3. Watch whether scrolling back causes a network transfer at all. A memory/disk
-   cache entry or a 304 response is not a full asset download. Keep cache settings
-   unchanged between comparisons.
-4. Record the same scroll in Performance. Check long main-thread tasks, image
-   decoding, painting and raster work. Returning images can need decoding or
-   rasterisation after browser memory eviction even without another download.
-   Server cache hits do not prove browser-decoded pixels stay in memory.
-5. Recheck thumbnail sharpness/transparency, lazy loading, responsive layout,
-   keyboard focus and CLS. Run Lighthouse against production with a warm image
-   cache separately from the first cold visit. No improved score or confirmed
-   cause of TBT is claimed without those browser measurements.
-
-## Quality review (ST-07)
-
-Retained native controls and the existing landmark/heading structure, labelled
-inputs, skip link, focus indicators, result status and error alert. Product
-thumbnails intentionally have empty alternatives because their adjacent linked
-headings provide the same information; the brand logo retains its useful alt text.
-
-Unavailable option suffixes are now shorter, reducing unnecessary popup width.
-Category/technology controls have explicit labels, bounded closed-control widths
-and wrapping full selected values below the row. Those values sit outside labels
-so they do not become part of the controls' accessible names. Result updates name
-the collection, announce no matches and distinguish retained results after errors.
-
-Native select popups are rendered by the browser/OS. In desktop device emulation
-they can extend outside the emulated viewport; CSS on the page cannot reliably
-constrain or wrap them. Closed controls remain constrained by the form layout.
-Inspect the reported 375px popup and 768px long-label cases on real devices too.
-No custom dropdown, CSS overflow masking or shortened source titles were added.
-
-The 31 unit tests already cover combined filters, sorting, compatibility/reset,
-empty sets, invalid parameters and source preservation. Four HTTP integration
-tests add coverage of actual status codes, response headers, query wiring and
-JSON errors. To repeat them, start a production server in one terminal:
+For integration testing, build and start a server in one terminal:
 
 ```powershell
 npm run build
 npm start -- --port 3002
 ```
 
-Then, in another terminal:
+In another terminal run `npm run test:api`. Set `PRODUCT_API_URL` to another local
+origin if necessary. Stop the server after testing. ESLint and tests are separate
+checks: a successful Next.js 16 build does not mean they ran.
 
-```powershell
-npm test
-npm run test:api
+The tests cover source/order preservation, combined filtering, case-insensitive
+search/title matching, sorting, nullable taxonomy content, compatibility/reset,
+empty results, invalid parameters, and actual HTTP status/JSON contracts.
+[The sprint record](docs/Sprint.md) contains story-specific validation evidence.
+
+## API
+
+`GET /api/products` returns HTTP 200:
+
+```json
+{ "products": ["original source records"], "total": 46 }
 ```
 
-`PRODUCT_API_URL` can override the integration-test origin if needed. TypeScript,
-ESLint, 31 unit tests, four production HTTP tests and the production build passed
-during ST-07. Static rendered-HTML checks verified labels, unique IDs, ARIA
-references, headings, skip target and lazy optimised images; sampled text colour
-pairs passed numerical AA contrast checks. Static checks do not exercise native
-popups, focus movement or announcements. The existing Node module-detection warning
-remains; no runtime or test failure accompanied it.
+The example array is schematic; actual elements are the unchanged source objects.
+`total` is the matching count, not a pagination total. No parameters returns all
+46 products in original order.
 
-Manual acceptance still required: keyboard-only use (including disclosure, skip,
-disabled options and retry), screen-reader result/error announcements, 375px/768px
-dropdown cases, other ST-06 widths, 200% text resizing and 400% zoom. Rerun WAVE
-and Lighthouse on production, using comparable settings and warm/cold image-cache
-runs as documented above. No manual browser, screen-reader or Lighthouse pass was
-performed for ST-07; full WCAG conformance or unchanged performance scores are not
-claimed. Image optimisation/cache configuration and request frequency were preserved.
+| Parameter | Behaviour |
+| --- | --- |
+| `mode` | `products` (default), `categories`, `technologies`, `measurementTypes` |
+| `search` | Trimmed, case-insensitive substring of title or strapline; all modes |
+| `category` | Trimmed, case-insensitive exact nested category title; Products only |
+| `technology` | Trimmed, case-insensitive exact nested technology title; Products only |
+| `sort` | Exactly `name-asc` or `name-desc`; omit for original source order |
 
-## Products API (ST-03)
+Search/category/technology combine with AND. Taxonomy modes ignore product-only
+filters and return their root collections using the same `products` response key.
+Empty/whitespace search/category/technology values are absent. Unknown filter
+values or unmatched searches return HTTP 200 with `{ "products": [], "total": 0 }`.
+Invalid modes/sorts, including empty mode/sort values, return HTTP 400 with a clear
+`{ "error": "..." }`. Unknown parameter names are ignored; repeats use the first value.
+Sorting uses case-insensitive English collation, preserves equal-name order and
+never mutates the source array. `sort=popular` remains invalid.
 
-`GET /api/products` returns HTTP 200 with `{ "products": [...], "total": 46 }`.
-`products` contains unchanged source records; `total` is the matching count.
-With no parameters, all 46 records retain their original source order.
-
-Optional query parameters can be combined:
-
-- `search`: trimmed, case-insensitive substring matching against `title` or
-  `strapline` (the supplied name and description text).
-- `category`: trimmed, case-insensitive **exact title** matching against each
-  product's nested `categories`. Titles are used because some nested categories
-  have empty IDs and null Tridion identifiers. No identifiers are manufactured.
-- `sort`: exactly `name-asc` or `name-desc`, using case-insensitive English title
-  collation. Equal names retain source order. Sorting operates on a new array.
-
-Search and category use AND semantics. Empty/whitespace search or category values
-are absent. Unknown categories or unmatched searches return HTTP 200 with
-`{ "products": [], "total": 0 }`. Any supplied invalid sort (including an empty
-value) returns HTTP 400 with `{ "error": "Invalid sort. Use ..." }`.
-Unknown parameter names are ignored; repeated parameters use their first value.
-
-ST-05 adds `technology` (exact nested title, trimmed/case-insensitive, combined
-with search/category using AND) and `mode` (`products`, `categories`,
-`technologies`, `measurementTypes`). Default mode remains products. Each mode
-returns its original collection through the existing `{ products, total }` keys;
-taxonomy records have their source taxonomy fields rather than product-only fields.
-Taxonomy views allow search/name sorting and ignore category/technology parameters.
-Invalid modes return HTTP 400 with `{ error }`. There is no invented popularity
-ranking: the UI disables it and the API continues to reject `sort=popular`.
-See [ST-05 notes](docs/Sprint.md#st-05-implementation-notes) for control behaviour,
-reset/error handling and manual acceptance checks.
-
-In Products mode, category/technology selects keep all options visible but disable
-incompatible combinations, derived from the complete source products already
-passed to the listing. The All categories/All technologies options stay enabled. Selecting a filter clears any
-incompatible opposite selection before the normal API request. Search and sorting
-do not affect availability, including when a search returns no matches. Native
-disabled semantics, unavailable labels and subdued colours communicate the state;
-exact popup styling depends on the browser/OS. No extra API calls are needed.
-
-Examples while `npm run dev` is running:
+Examples:
 
 - http://localhost:3000/api/products
 - http://localhost:3000/api/products?search=ZETASIZER
 - http://localhost:3000/api/products?category=Density%20analyzers
-- http://localhost:3000/api/products?sort=name-asc
-- http://localhost:3000/api/products?search=pyc&category=Density%20analyzers&sort=name-desc
+- http://localhost:3000/api/products?technology=Laser%20Diffraction&sort=name-asc
+- http://localhost:3000/api/products?mode=measurementTypes&search=particle
 
-Run focused query tests with `npm test`. These use Node's built-in test runner
-and native TypeScript stripping (Node.js 22.18+ or 24+; validated on Node.js 26).
-No test framework or additional dependency is required. Run TypeScript separately
-with `npx --no-install tsc --noEmit --incremental false`.
+## Architecture and data decisions
 
-## Dependency notes
+- `src/app/page.tsx` reads server-only accessors and supplies initial products and
+  option titles. The listing is prerendered, then hydrated without a mount-time fetch.
+- `src/components/` contains the header, hero, interactive listing and reusable cards.
+  Select changes call the API; search submits on Search/Enter or the next select change.
+- `src/app/api/products/route.ts` maps HTTP queries to pure listing logic, similar
+  in responsibility to an ASP.NET Core endpoint.
+- `src/lib/query-products.ts` handles collection selection, search/filter/sort and
+  validation; `product-filter-options.ts` derives relationships from all source products.
+- `src/data/products.ts` imports the original JSON and marks access as server-only;
+  `src/types/` describes source data and the common presentation fields.
+- `resources/` remains read-only reference material. The original IDs, Tridion IDs,
+  null/empty values, root collections and nested relationships are preserved.
 
-The initial install reported eight moderate audit findings through `minimatch`
-in the Next.js ESLint tooling. npm's suggested forced fix downgrades
-`eslint-config-next` to a different Next.js major, so it has not been applied.
-ESLint 9 also reports that it is out of support; the installed React lint plugin
-declares support through ESLint 9, so this baseline retains that compatible major.
-Review these tooling dependencies when compatible upstream updates are available.
+Category filtering uses titles because some nested IDs are empty/null. Options
+include root and nested titles. Mode switching clears category/technology while
+keeping search/sort; Reset clears search/filter/sort within the current mode.
+Taxonomy controls disable product-only filters. Previous results remain visible
+on loading/error, with status messages and retry rather than a false empty response.
+
+Cards resolve supplied relative URLs against `https://www.malvernpanalytical.com`,
+matching source metadata. Links open in the current tab. Missing URLs produce
+non-linked cards; empty images use a placeholder; null descriptions are omitted.
+No product detail URLs or pages are invented.
+
+## Responsive design and accessibility
+
+The grid uses one horizontal-card column below 640px, two columns at 640-1023px,
+three at 1024-1279px and four from 1280px. Mobile controls stack; larger rows wrap.
+Image regions remain fixed with `object-fit: contain`. Native select popups and
+closed-value truncation depend on browser/OS: shorter unavailable suffixes and
+wrapping selected-value summaries help without introducing custom dropdowns.
+
+Semantic landmarks, heading/list structure, a skip link, native labelled controls,
+44px form targets, visible focus and loading/empty/error announcements are provided.
+Card links use their visible headings as accessible names. Redundant thumbnails
+have empty alt text; the brand logo retains meaningful alternative text. Explicit
+label associations were added to Display/Sort after manual WAVE feedback.
+
+Developer-reported production audit results (not independently rerun by Codex):
+
+| Audit | Performance | Accessibility | Best Practices | SEO |
+| --- | --- | --- | --- | --- |
+| Desktop Lighthouse | 100 | 100 | 100 | 100 |
+| Mobile Lighthouse | 98 | 100 | 100 | 100 |
+
+WAVE reported zero accessibility/contrast errors, AIM 10/10 and three alerts.
+Two Display/Sort label alerts prompted explicit associations; a subsequent WAVE
+result was not supplied. The brand-home and breadcrumb-home duplication is retained
+for its separate navigation contexts. Recheck the final deployed page; scores do
+not replace keyboard, screen-reader, zoom or real-device review.
+
+## Image performance
+
+Product images use `next/image`, a restricted HTTPS remote allowlist, responsive
+`sizes`, lazy loading and the default Next.js cache lifetime. Only the small logo
+is prioritised. On Vercel, use its managed Next.js image optimisation/cache; there
+is no custom filesystem cache or repository copy of the remote product assets.
+
+Three original image samples were 7.3-26.5 MB; local production optimisation yielded
+384px-wide WebP variants of 7.8-16.5 KB with MISS then HIT cache responses and a
+30-day upstream lifetime. This is sampled evidence, not a guarantee for every asset.
+Cold variants need access to `dam.malvernpanalytical.com` and an upstream fetch.
+
+In Chrome Network, leave Disable cache unchecked, filter Img and inspect
+`/_next/image` widths, sizes, bytes, browser memory/disk cache and `x-nextjs-cache`.
+Scroll down/up and use Performance recordings to distinguish transfers from image
+decoding/painting. Compare development/production with identical settings and
+separate cold/warm caches. Cached network data does not guarantee decoded pixels
+stay resident. Remote asset availability and hosted optimisation still need review.
+
+## Manual Vercel deployment
+
+Deployment is performed by the developer. No Vercel project or hosted preview was
+created or verified by Codex. Standard Next.js configuration needs no `vercel.json`;
+do not enable static export because the API and image optimiser require a runtime.
+See [Vercel's Git deployment guide](https://vercel.com/docs/git).
+
+1. Review the final files, then commit/push the intended state of `main` yourself.
+   Include the lockfile, source JSON and logo; exclude dependencies, `.next`, local
+   caches and secrets. If a Vercel project already imports this repository, a push
+   may trigger deployment automatically: review its settings first.
+2. In Vercel, open the existing project, or choose Add New > Project and import the
+   existing GitHub repository under the intended account/team.
+3. Select Next.js, repository root as Root Directory, npm, Install Command `npm ci`,
+   Build Command `npm run build`, and the framework-default Output Directory.
+4. Select Node.js 26.x in project settings to match local validation. Vercel currently
+   supports it; see [supported versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+   No application environment variables, API keys or database settings are required.
+   Do not set `NODE_ENV=development` or copy test-only `PRODUCT_API_URL` to production.
+5. Confirm `main` as the intended production branch, deploy the reviewed revision
+   (or redeploy the correct latest commit), and inspect install/build/runtime logs.
+6. Open the deployment URL and perform the checklist below. Confirm image requests
+   succeed through `/_next/image` and API filtering happens on the server.
+
+No test/lint deployment gate is installed automatically. Run the checks above before
+pushing; consider CI later. Account permissions, actual project settings, quotas,
+remote image reachability and the deployed build have not been verified here.
+
+## Delivery limitations and improvements
+
+- Popularity semantics are unresolved. Ask for an authoritative ranking/badge mapping.
+- The logo was cropped from supplied `resources/3.png`; Arial and a dark gradient
+  approximate missing brand font/hero assets. Prefer official assets when available.
+- Site-wide navigation/login/search are intentionally limited; the listing search works.
+- Propose a design improvement: show a compact summary of applied filters with clear
+  removal actions, helping keyboard/mobile users understand why results changed.
+  This optional enhancement is not implemented; keep the supplied design primary.
+- Production improvements: confirm data/branding contracts, validate future CMS input,
+  add CI and browser/accessibility coverage, measure real-user performance, and
+  document image availability/cost monitoring. No CMS/database architecture is needed
+  for the exercise.
+- Initial dependency audit reported eight moderate findings through minimatch in
+  development lint tooling. No fresh registry audit was run for final delivery;
+  review compatible upstream fixes separately. ESLint 9 has a recorded end-of-support
+  warning; its installed React lint plugin supports that major. Do not apply a forced
+  audit fix or dependency-major change without review.
+
+## AI use and time recording
+
+ChatGPT was used for planning, story breakdown and review. Codex assisted with
+implementation, tests, investigation and documentation. The developer manually
+reviewed, tested and accepted ST-01 through ST-07 and owns Git and deployment.
+The developer should be prepared to explain and modify the submitted code.
+
+The assessment suggests approximately 2-4 hours. Recorded time through ST-07 is
+**4 hours 25 minutes**: 60 minutes planning/preparation and 205 minutes for
+ST-01-ST-07 implementation, troubleshooting, manual verification, testing and
+review, including AI-assisted work. ST-08 time is pending, so no final total is
+reported. See [the sprint record](docs/Sprint.md). ST-08 awaits final review and
+manual deployment.
+
+## Final manual acceptance
+
+- Confirm the deployed revision, HTTPS URL, install/build logs and runtime settings.
+- Check default counts 46/36/19/50, combined filters, name sorts, reset and source links.
+- Verify compatibility/disabled options, loading, no matches, API errors and retry.
+- Inspect 375/768/1024/1440px, enlarged text and native dropdowns on a real device.
+- Check keyboard/skip/focus, screen-reader announcements, WAVE and production Lighthouse.
+- Verify cold/warm optimised images and API responses; record hosted limitations.
+- Add the deployment URL and recorded ST-08 time, then update the final total.

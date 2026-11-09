@@ -20,7 +20,7 @@ export function ProductCard({ product }: { product: ListingItem }) {
             fill
             className="product-image"
             // Match the mobile image column, tablet/desktop grids and 78rem content cap.
-            sizes="(max-width: 40rem) calc(34vw - 1.0625rem), (max-width: 64rem) calc(33.333vw - 3rem), (max-width: 81rem) calc(25vw - 3rem), 17.25rem"
+            sizes="(width < 40rem) calc(34vw - 1.0625rem), (width < 64rem) calc(50vw - 3.25rem), (width < 80rem) calc(33.333vw - 3rem), (max-width: 81rem) calc(25vw - 3rem), 17.25rem"
             loading="lazy"
           />
         ) : (

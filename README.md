@@ -46,7 +46,7 @@ npm lockfile to preserve the resolved dependency versions.
 
 The homepage renders all 46 source records in their original order. Reusable
 header, hero, listing and card components establish four-column desktop,
-three-column tablet and single-column mobile layouts; mobile cards place images
+three-column small-desktop, two-column tablet and single-column mobile layouts; mobile cards place images
 beside their copy. ST-05 adds native listing controls. Popularity and its badges
 remain unavailable until a source mapping is confirmed.
 
@@ -82,7 +82,8 @@ claim: browser, screen-reader, zoom and keyboard acceptance remain necessary.
 Manual acceptance at http://localhost:3000:
 
 1. Inspect at 1440px, 768px, 390px and 320px widths, plus intermediate widths;
-   verify 4/3/1 columns, readable cards, contained images and no horizontal scrolling.
+   verify 4/2/1 columns at those widths (three columns at 1024px), readable cards,
+   contained images and no horizontal scrolling. Controls stack below 640px.
 2. Check all 46 cards and a few names/descriptions/images against the JSON.
    Follow a card and confirm it reaches the corresponding source website page.
 3. Start with Tab: the skip link must become visible. Press Enter and verify the

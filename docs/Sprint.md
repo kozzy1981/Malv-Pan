@@ -106,7 +106,7 @@ modelling the source; do not invent replacement content.
 | ST-03 | API, Filtering & Sorting | 30 minutes | Planned | Read-only Next.js API using the data-access module; category/technology query parameters, alphabetical/popularity sorting, deliberate validation and JSON responses. Make display/filter supporting data available. Acceptance: document contract; verify valid, combined, invalid and empty-result requests and server-side sorting/filtering. Exact parameters and sort semantics must be settled in this story. |
 | ST-04 | Page Structure & Components | 35 minutes | Planned | Build the header, hero, listing controls and reusable cards from the supplied designs; present source content and link cards to source URLs. Acceptance: developer checks page structure, component responsibilities and source-backed content. Interactive behaviour belongs to ST-05; responsive refinement and visual checks across widths belong to ST-06. |
 | ST-05 | Interactive Product Listing | 30 minutes | Implemented; awaiting acceptance | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
-| ST-06 | Responsive Design | 30 minutes | Planned | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
+| ST-06 | Responsive Design | 30 minutes | Implemented; awaiting acceptance | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
 | ST-07 | Accessibility, Testing & Refinement | 15 minutes | Planned | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
 | ST-08 | Deployment & Documentation | 15 minutes | Planned | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
 
@@ -199,3 +199,55 @@ prevent choosing an incompatible pair in the first place. Native option colours
 vary by browser/OS, so explicit unavailable labels supplement disabled semantics.
 Refinement validation: TypeScript, ESLint, all 31 tests (including eight new
 compatibility/reset tests) and the production build passed.
+
+## ST-06 implementation notes
+
+Implemented for developer acceptance; do not start ST-07. The original ST-06
+budget remains 30 minutes.
+
+Already responsive: fluid/capped content widths, wrapping header/hero text,
+fixed-aspect-ratio image regions with `object-fit: contain`, horizontal mobile
+cards, flexible labelled controls, visible focus states and 44px form targets.
+No API, interaction, source-data or image-cache changes were needed.
+
+Targeted refinements:
+
+- Below 640px: retain one column of horizontal cards and explicitly stack controls
+  and action buttons at full width. Reset vertical flex bases so controls do not
+  inherit a 12rem height when their parent changes to a column.
+- 640-1023px: two card columns, allowing more room for longer source descriptions
+  than the previous three-column tablet rule. This follows the requested comfort
+  guideline while retaining the reference card composition; the supplied tablet
+  reference itself shows three columns.
+- 1024-1279px: three columns, avoiding the previous jump to four just above 1024px.
+- 1280px and above: retain the existing four-column desktop appearance and cap.
+- Responsive image `sizes` now follow these same breakpoints and widths. Lazy
+  loading, optimisation, fixed regions and source-image aspect ratios are preserved.
+
+Validation: TypeScript, ESLint, all 31 existing tests and the production build
+passed. Automated stylesheet-rule checks using the installed PostCSS parser
+verified 375/768/1024/1440px as 1/2/3/4 columns, mobile stacking, contained images
+and 44px inputs. Boundary checks at 639/640/1023/1279/1280px also passed. Production
+HTML retains 46 cards with optimised lazy images and the updated sizes. These
+checks assume a normal 16px media-query root; they do not measure browser layout,
+overflow, text clipping or visual fidelity. Browser tooling reported that its
+access host was unavailable, so visual acceptance remains outstanding.
+
+Manual acceptance at 375px, 768px, 1024px and 1440px (and between breakpoints):
+
+1. Verify 1/2/3/4 card columns, contained images, readable headings/descriptions
+   and no horizontal page scrolling. Check all four listing modes, including
+   records with long titles or missing images.
+2. Below 640px, verify full-width stacked search, category, technology, sort,
+   mode and action controls. At larger widths, inspect wrapping rows and confirm
+   the 1440px desktop card appearance is retained.
+3. Inspect long selected filter values and unavailable option labels using the
+   native dropdown popup. Popup sizing and truncation of closed select text vary
+   by browser/OS; the complete option text remains in the native control.
+4. Tab/Shift+Tab through controls and cards, activate the skip link and disclosure,
+   and verify visible, unobscured focus. Check touch targets on a mobile device.
+5. Recheck combined filters, reset, loading/errors, 200% text enlargement and
+   400% browser zoom. Confirm no loss of content/functionality or new overflow.
+
+Full accessibility conformance and device-specific visual behaviour are not
+claimed from stylesheet or query tests.

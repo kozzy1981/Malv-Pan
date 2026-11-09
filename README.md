@@ -39,7 +39,42 @@ state is needed for this initial page. Global styles load Tailwind through PostC
 
 Generated output, dependencies and local `.env*` files are ignored. Commit the
 npm lockfile to preserve the resolved dependency versions. Product features are
-reserved for later stories.
+implemented incrementally in later stories.
+
+## Products API (ST-03)
+
+`GET /api/products` returns HTTP 200 with `{ "products": [...], "total": 46 }`.
+`products` contains unchanged source records; `total` is the matching count.
+With no parameters, all 46 records retain their original source order.
+
+Optional query parameters can be combined:
+
+- `search`: trimmed, case-insensitive substring matching against `title` or
+  `strapline` (the supplied name and description text).
+- `category`: trimmed, case-insensitive **exact title** matching against each
+  product's nested `categories`. Titles are used because some nested categories
+  have empty IDs and null Tridion identifiers. No identifiers are manufactured.
+- `sort`: exactly `name-asc` or `name-desc`, using case-insensitive English title
+  collation. Equal names retain source order. Sorting operates on a new array.
+
+Search and category use AND semantics. Empty/whitespace search or category values
+are absent. Unknown categories or unmatched searches return HTTP 200 with
+`{ "products": [], "total": 0 }`. Any supplied invalid sort (including an empty
+value) returns HTTP 400 with `{ "error": "Invalid sort. Use ..." }`.
+Unknown parameter names are ignored; repeated parameters use their first value.
+
+Examples while `npm run dev` is running:
+
+- http://localhost:3000/api/products
+- http://localhost:3000/api/products?search=ZETASIZER
+- http://localhost:3000/api/products?category=Density%20analyzers
+- http://localhost:3000/api/products?sort=name-asc
+- http://localhost:3000/api/products?search=pyc&category=Density%20analyzers&sort=name-desc
+
+Run focused query tests with `npm test`. These use Node's built-in test runner
+and native TypeScript stripping (Node.js 22.18+ or 24+; validated on Node.js 26).
+No test framework or additional dependency is required. Run TypeScript separately
+with `npx --no-install tsc --noEmit --incremental false`.
 
 ## Dependency notes
 

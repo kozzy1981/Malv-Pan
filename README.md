@@ -62,6 +62,8 @@ passed TypeScript, ESLint, all 31 unit tests, all four API tests and the build.
 original matching records and `total` is their count. Without parameters it returns
 all 46 products in source order, which is distinct from alphabetical sorting.
 
+### Query parameters
+
 | Parameter | Behaviour |
 | --- | --- |
 | `mode` | `products` (default), `categories`, `technologies`, `measurementTypes` |
@@ -70,23 +72,37 @@ all 46 products in source order, which is distinct from alphabetical sorting.
 | `technology` | Trimmed, case-insensitive exact nested technology title; Products only |
 | `sort` | Exactly `name-asc` or `name-desc`; omit to retain source order |
 
-Examples, with the local server running:
+### Example requests
 
-```text
-/api/products?search=ZETASIZER
-/api/products?category=Density%20analyzers&sort=name-asc
-/api/products?category=Particle%20size%20analyzers&technology=Laser%20Diffraction
-/api/products?mode=measurementTypes&search=particle
-```
+Append these paths to either `http://localhost:3000` or
+`https://ryanh-mp-assessment.vercel.app`:
 
-Search, category and technology combine with AND semantics. Taxonomy modes ignore
-product-only filters and return their root records under the same `products` key.
-Empty/whitespace search and filter values are treated as absent. Unknown filters
-or unmatched searches return HTTP 200 with `{ "products": [], "total": 0 }`.
-Invalid modes/sorts, including empty mode/sort values, return HTTP 400 with a clear
-`{ "error": "..." }`. Unknown parameter names are ignored; repeats use the first value.
-Name sorting uses case-insensitive English collation, retains equal-name order
-and never mutates the dataset. `sort=popular` is deliberately rejected.
+| Example path | Demonstrates |
+| --- | --- |
+| `/api/products` | All 46 products in original source order |
+| `/api/products?search=ZETASIZER` | Case-insensitive search of product titles and straplines |
+| `/api/products?category=Density%20analyzers&sort=name-asc` | Category filtering combined with alphabetical sorting |
+| `/api/products?category=Particle%20size%20analyzers&technology=Laser%20Diffraction` | Products matching both category and technology |
+| `/api/products?mode=measurementTypes&search=particle` | Searching the measurement-type collection |
+
+### Validation and error handling
+
+Search, category and technology filters combine with AND semantics: a product must
+match every supplied criterion. Taxonomy modes ignore product-only filters and
+return their root records under the same `products` response key.
+
+Empty or whitespace-only search, category and technology values are treated as
+absent. Unknown filter titles or unmatched searches are valid requests and return
+HTTP 200 with `{ "products": [], "total": 0 }`.
+
+Invalid modes or sorts, including empty mode/sort values, return HTTP 400 with a
+JSON error such as `{ "error": "Invalid mode. Use products, categories, technologies or measurementTypes." }`.
+Unknown parameter names are ignored; repeated parameters use their first value.
+
+Name sorting uses case-insensitive English collation, retains the source order of
+equal names and never mutates the dataset. Omitting `sort` preserves original
+source order; `sort=popular` is deliberately rejected because popularity sorting
+is not available.
 
 ## Architecture and technical decisions
 
@@ -166,6 +182,21 @@ it can be difficult to see why results are restricted. Mobile and keyboard users
 and anyone combining filters, would benefit from compact removable filter chips
 above the results. Each chip would clear one selection without reopening the
 controls. This is a proposal, not an implemented feature.
+
+## What I'd improve next
+
+Given more time, I'd prioritise:
+
+1. **Complete popularity sorting:** Agree an authoritative ranking or CMS data
+   contract rather than infer popularity from an unrelated field.
+2. **Improve visual fidelity:** Replace approximated typography and hero styling
+   with official brand assets and guidelines.
+3. **Expand automated coverage:** Add browser-level user-journey and accessibility
+   checks, ideally integrated into CI.
+4. **Prepare for CMS integration:** Define and validate a clear Sitecore data
+   contract, retaining the separation between data access and presentation.
+
+The active filter summary proposed above would also be a useful subsequent UX enhancement.
 
 ## AI assistance and time
 

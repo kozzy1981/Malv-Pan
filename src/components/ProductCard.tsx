@@ -1,8 +1,8 @@
 import Image from "next/image";
-import type { Product } from "@/types/product";
+import type { ListingItem } from "@/types/listing";
 
 /** Presents source content without deriving badges or guessing missing product URLs. */
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: ListingItem }) {
   const title = product.title?.trim() || "Product information";
   const headingId = `product-${product.id}`;
   // The dataset's metadata identifies this website as the base for relative URLs.

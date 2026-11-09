@@ -17,3 +17,8 @@ const productDataset: ProductDataset = suppliedProductDataset;
 export function getProducts(): readonly Product[] {
   return productDataset.products;
 }
+
+/** Exposes the original root collections to server consumers without copying source data. */
+export function getProductDataset(): ProductDataset {
+  return productDataset;
+}

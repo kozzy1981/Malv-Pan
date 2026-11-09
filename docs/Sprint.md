@@ -105,7 +105,7 @@ modelling the source; do not invent replacement content.
 | ST-02 | Data Models & Access | 15 minutes | Next; not implemented | Preserve the original JSON, define descriptive TypeScript models matching the real structure and expose records through a small reusable server-side data-access module. No API, filtering, sorting, pagination or UI. Acceptance: type checking and ESLint pass; module reads the supplied records; report loaded product count and data assumptions. |
 | ST-03 | API, Filtering & Sorting | 30 minutes | Planned | Read-only Next.js API using the data-access module; category/technology query parameters, alphabetical/popularity sorting, deliberate validation and JSON responses. Make display/filter supporting data available. Acceptance: document contract; verify valid, combined, invalid and empty-result requests and server-side sorting/filtering. Exact parameters and sort semantics must be settled in this story. |
 | ST-04 | Page Structure & Components | 35 minutes | Planned | Build the header, hero, listing controls and reusable cards from the supplied designs; present source content and link cards to source URLs. Acceptance: developer checks page structure, component responsibilities and source-backed content. Interactive behaviour belongs to ST-05; responsive refinement and visual checks across widths belong to ST-06. |
-| ST-05 | Interactive Product Listing | 30 minutes | Planned | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
+| ST-05 | Interactive Product Listing | 30 minutes | Implemented; awaiting acceptance | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
 | ST-06 | Responsive Design | 30 minutes | Planned | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
 | ST-07 | Accessibility, Testing & Refinement | 15 minutes | Planned | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
 | ST-08 | Deployment & Documentation | 15 minutes | Planned | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
@@ -136,5 +136,66 @@ Explain unfamiliar React/Next.js concepts for a C#/.NET developer where useful.
 Leave browser acceptance to the developer. Stop for manual acceptance before
 starting the next story.
 
-This documentation preparation does not implement ST-02. Resume it only on an
-explicit instruction after review of this plan.
+## ST-05 implementation notes
+
+Implemented for developer acceptance; stop here before ST-06. ST-01 through ST-04
+were confirmed complete by the developer before this story. Original story budgets
+remain unchanged, including ST-05's 30-minute allocation.
+
+- Four modes expose original source collections: Products (46), Categories (36),
+  Technologies (19), Measurement Types (50), before searching.
+- `/api/products` preserves its default `{ products, total }` contract. Optional
+  `mode` accepts `products`, `categories`, `technologies` or `measurementTypes`;
+  the existing `products` key contains taxonomy records in alternate modes.
+  Invalid modes return HTTP 400 with `{ error }`.
+- Optional `technology` matches trimmed, case-insensitive exact nested titles,
+  just like `category`. Search, category and technology combine with AND semantics.
+  Unknown filters return HTTP 200 with no matches; blank filters are absent.
+  Existing name sorts, invalid-sort errors and default source order are retained.
+- Taxonomy views support search and name sorting. Product-only filters are disabled
+  there and ignored by the API. Mode switching clears category/technology but keeps
+  search/sort. Reset clears search, both filters and sorting in the current mode.
+- Option titles include root and nested records, preserving selection of categories
+  without IDs. No source identifiers, metrics or content are manufactured.
+- Products-mode dropdowns retain every option but disable incompatible opposite
+  titles using relationships from the complete original products prop. Native
+  disabled options also carry an unavailable suffix and subdued colours. All
+  placeholder options (All categories/All technologies) remain enabled, and clearing/resetting filters removes the corresponding
+  restrictions. Changing one filter clears an incompatible opposite selection
+  before making the existing single API request. Search and sorting never constrain
+  option availability; no relationship requests or hardcoded mappings are added.
+- The server provides initial products and option titles. The client listing is
+  prerendered and hydrated without an initial fetch. Select changes request results
+  immediately; search text applies on Search/Enter or the next selection change,
+  avoiding a request for every keystroke. Superseded requests are aborted.
+- Native details/summary makes search/filters collapsible on mobile and desktop,
+  initially expanded. Labels, visible focus and 44px control heights are provided.
+  Loading has a status message/busy region. Errors are announced with retry, and
+  previous results remain visible during loading/failure. Empty results offer reset
+  guidance. Existing responsive cards and lazy optimised images remain in place.
+- Popularity remains unavailable with a disabled option and explanation. There is
+  no defined popularity metric; `productOrderNumber` and `promotions` have not been
+  reinterpreted. A confirmed source mapping is needed before enabling it or badges.
+- Validation: TypeScript, ESLint, the production build and 23 pure-query tests passed
+  (14 existing, nine added). Production HTTP checks verified default compatibility,
+  all mode counts, combined filters, missing-ID categories, invalid requests and
+  initial HTML with 46 cards and optimised lazy images. Browser interaction and visual accessibility remain
+  manual acceptance checks; these checks do not establish full WCAG conformance.
+
+Manual review: reset in each mode and check 46/36/19/50 results; combine search,
+category, technology and both name sorts; select Density analyzers (missing source
+IDs); test no matches and reset. Open/close filters and operate controls using a
+mobile viewport and keyboard. Throttle the API to inspect loading and rapid changes;
+block `/api/products` to check retained results/error handling, then unblock and
+retry. Confirm no initial API request and unchanged optimised image URLs.
+
+Dropdown refinement review: select Particle size analyzers and inspect disabled
+technologies; select Laser Diffraction and inspect disabled categories. Confirm
+All categories/technologies remain selectable and clearing/reset restores options.
+Use keyboard navigation to confirm disabled options cannot be selected. Search
+for an unmatched term and verify relationship availability remains unchanged.
+The invalidation helpers are tested in both directions; native dropdowns normally
+prevent choosing an incompatible pair in the first place. Native option colours
+vary by browser/OS, so explicit unavailable labels supplement disabled semantics.
+Refinement validation: TypeScript, ESLint, all 31 tests (including eight new
+compatibility/reset tests) and the production build passed.

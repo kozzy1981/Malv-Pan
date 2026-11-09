@@ -29,7 +29,7 @@ a {
 }
 
 /* The two-colour indicator remains visible on both dark and light surfaces. */
-a:focus-visible, main:focus {
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, main:focus {
   outline: 3px solid var(--brand-teal);
   outline-offset: 4px;
   box-shadow: 0 0 0 4px #fff;
@@ -291,3 +291,74 @@ a.product-card-content:hover h3 {
   }
 }
 
+/* Native controls preserve keyboard behaviour and wrap into mobile-friendly rows. */
+.listing-controls {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f6f8f8;
+  border-radius: 0.375rem;
+}
+.listing-control-row, .listing-filter-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+}
+.listing-field {
+  display: flex;
+  flex: 1 1 12rem;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-weight: 700;
+}
+.listing-field input, .listing-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid #69777b;
+  border-radius: 0.25rem;
+  background: white;
+  color: var(--text-colour);
+  font: inherit;
+  font-weight: 400;
+}
+.listing-field select:disabled {
+  color: #505b5e;
+  background: #eaf0f1;
+}
+.listing-field option:disabled {
+  color: #505b5e;
+  background: #eaf0f1;
+}
+.listing-controls button, .listing-error button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--brand-teal);
+  border-radius: 0.25rem;
+  background: var(--brand-teal);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+.listing-controls .secondary-button {
+  background: white;
+  color: var(--brand-teal);
+}
+.listing-filters summary {
+  min-height: 2.75rem;
+  padding-block: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.control-note {
+  margin: 0.75rem 0;
+  color: var(--muted-text);
+  font-size: 0.875rem;
+}
+.listing-error {
+  margin-block: 1rem;
+  padding: 1rem;
+  border: 1px solid #9a2626;
+}

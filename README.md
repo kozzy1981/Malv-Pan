@@ -34,8 +34,9 @@ Linting is a separate check because Next.js 16 does not run ESLint during builds
 The build also checks TypeScript. `npm start` requires a successful build first.
 
 `src/app/page.tsx` defines `/`, and `src/app/layout.tsx` supplies the shared HTML
-document and metadata. The page and presentation components are Server Components;
-the initial listing calls `getProducts()` directly without an internal API request.
+document and metadata. The page reads `getProducts()` on the server and passes
+initial records to an interactive, server-prerendered listing; hydration does not
+trigger an internal API request. Subsequent control changes use the listing API.
 Global styles load Tailwind through PostCSS.
 
 Generated output, dependencies and local `.env*` files are ignored. Commit the
@@ -46,8 +47,8 @@ npm lockfile to preserve the resolved dependency versions.
 The homepage renders all 46 source records in their original order. Reusable
 header, hero, listing and card components establish four-column desktop,
 three-column tablet and single-column mobile layouts; mobile cards place images
-beside their copy. Filters, sorting controls and popularity badges are deferred
-until their behaviour and source mapping are implemented in later stories.
+beside their copy. ST-05 adds native listing controls. Popularity and its badges
+remain unavailable until a source mapping is confirmed.
 
 Product links resolve the supplied relative URLs against
 `https://www.malvernpanalytical.com`, matching the JSON's `metadata.sourceUrl`.
@@ -166,6 +167,25 @@ are absent. Unknown categories or unmatched searches return HTTP 200 with
 `{ "products": [], "total": 0 }`. Any supplied invalid sort (including an empty
 value) returns HTTP 400 with `{ "error": "Invalid sort. Use ..." }`.
 Unknown parameter names are ignored; repeated parameters use their first value.
+
+ST-05 adds `technology` (exact nested title, trimmed/case-insensitive, combined
+with search/category using AND) and `mode` (`products`, `categories`,
+`technologies`, `measurementTypes`). Default mode remains products. Each mode
+returns its original collection through the existing `{ products, total }` keys;
+taxonomy records have their source taxonomy fields rather than product-only fields.
+Taxonomy views allow search/name sorting and ignore category/technology parameters.
+Invalid modes return HTTP 400 with `{ error }`. There is no invented popularity
+ranking: the UI disables it and the API continues to reject `sort=popular`.
+See [ST-05 notes](docs/Sprint.md#st-05-implementation-notes) for control behaviour,
+reset/error handling and manual acceptance checks.
+
+In Products mode, category/technology selects keep all options visible but disable
+incompatible combinations, derived from the complete source products already
+passed to the listing. The All categories/All technologies options stay enabled. Selecting a filter clears any
+incompatible opposite selection before the normal API request. Search and sorting
+do not affect availability, including when a search returns no matches. Native
+disabled semantics, unavailable labels and subdued colours communicate the state;
+exact popup styling depends on the browser/OS. No extra API calls are needed.
 
 Examples while `npm run dev` is running:
 

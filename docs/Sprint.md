@@ -30,11 +30,12 @@ developer's actual time log for reporting effort:
 | ST-00 planning and preparation | 60 minutes |
 | ST-01-ST-07 implementation, manual review, testing and refinement | 205 minutes |
 | Total through ST-07 | **265 minutes (4 hours 25 minutes)** |
-| ST-08 | Pending recording |
+| ST-08 deployment and documentation | 15 minutes |
+| Final recorded total | **280 minutes (4 hours 40 minutes)** |
 
 The recorded time includes AI-assisted development, troubleshooting, manual
-verification and review, not just coding. No final total is available until ST-08
-time is recorded. Story budgets below are historical planning estimates, not
+verification and review, not just coding. ST-08's 15 minutes were supplied by the
+developer. Story budgets below are historical planning estimates, not
 recorded actuals. Hidden PDF text is not used as submission timing guidance.
 
 Prioritise a faithful responsive page and a working API with server-side filtering
@@ -101,14 +102,14 @@ modelling the source; do not invent replacement content.
 
 | Story | Name | Budget | Status | Scope and acceptance |
 | --- | --- | --- | --- | --- |
-| ST-01 | Bootstrap & Setup | 10 minutes | Completed, per developer | Next.js App Router, React, TypeScript, Tailwind CSS and ESLint; npm, `src/`, `@/*`, suitable scripts and ignore rules; default homepage on localhost:3000. Lint, production build and local HTTP smoke check passed during ST-01. |
-| ST-02 | Data Models & Access | 15 minutes | Next; not implemented | Preserve the original JSON, define descriptive TypeScript models matching the real structure and expose records through a small reusable server-side data-access module. No API, filtering, sorting, pagination or UI. Acceptance: type checking and ESLint pass; module reads the supplied records; report loaded product count and data assumptions. |
-| ST-03 | API, Filtering & Sorting | 30 minutes | Planned | Read-only Next.js API using the data-access module; category/technology query parameters, alphabetical/popularity sorting, deliberate validation and JSON responses. Make display/filter supporting data available. Acceptance: document contract; verify valid, combined, invalid and empty-result requests and server-side sorting/filtering. Exact parameters and sort semantics must be settled in this story. |
-| ST-04 | Page Structure & Components | 35 minutes | Planned | Build the header, hero, listing controls and reusable cards from the supplied designs; present source content and link cards to source URLs. Acceptance: developer checks page structure, component responsibilities and source-backed content. Interactive behaviour belongs to ST-05; responsive refinement and visual checks across widths belong to ST-06. |
-| ST-05 | Interactive Product Listing | 30 minutes | Implemented; awaiting acceptance | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
-| ST-06 | Responsive Design | 30 minutes | Implemented; awaiting acceptance | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
-| ST-07 | Accessibility, Testing & Refinement | 15 minutes | Implemented; awaiting acceptance | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
-| ST-08 | Deployment & Documentation | 15 minutes | Prepared; developer deployment pending | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
+| ST-01 | Bootstrap & Setup | 10 minutes | Accepted (developer-confirmed) | Next.js App Router, React, TypeScript, Tailwind CSS and ESLint; npm, `src/`, `@/*`, suitable scripts and ignore rules; default homepage on localhost:3000. Lint, production build and local HTTP smoke check passed during ST-01. |
+| ST-02 | Data Models & Access | 15 minutes | Accepted (developer-confirmed) | Preserve the original JSON, define descriptive TypeScript models matching the real structure and expose records through a small reusable server-side data-access module. No API, filtering, sorting, pagination or UI. Acceptance: type checking and ESLint pass; module reads the supplied records; report loaded product count and data assumptions. |
+| ST-03 | API, Filtering & Sorting | 30 minutes | Accepted (developer-confirmed) | Read-only Next.js API using the data-access module; category/technology query parameters, alphabetical/popularity sorting, deliberate validation and JSON responses. Make display/filter supporting data available. Acceptance: document contract; verify valid, combined, invalid and empty-result requests and server-side sorting/filtering. Exact parameters and sort semantics must be settled in this story. |
+| ST-04 | Page Structure & Components | 35 minutes | Accepted (developer-confirmed) | Build the header, hero, listing controls and reusable cards from the supplied designs; present source content and link cards to source URLs. Acceptance: developer checks page structure, component responsibilities and source-backed content. Interactive behaviour belongs to ST-05; responsive refinement and visual checks across widths belong to ST-06. |
+| ST-05 | Interactive Product Listing | 30 minutes | Accepted (developer-confirmed) | Implement four display modes (Products, Categories, Technologies, Measurement Types), category and technology filtering, alphabetical/popularity sorting, mobile filters, API-driven interactions and empty/loading/error states. Acceptance: changing controls updates results through the API; combined controls, all display modes, mobile filter interaction and result states work according to documented decisions. Product filtering and sorting remain server-side. |
+| ST-06 | Responsive Design | 30 minutes | Accepted (developer-confirmed) | Refine layouts and image handling against the mobile, tablet and desktop references, including widths between them. Acceptance: developer checks visual fidelity, usable controls and cards, and absence of horizontal overflow at reference and intermediate widths. |
+| ST-07 | Accessibility, Testing & Refinement | 15 minutes | Accepted (developer-confirmed) | Review semantic HTML, keyboard access and edge cases; refine issues and verify filtering/sorting and integrated behaviour. Acceptance: run appropriate checks and document results, manual accessibility checks and remaining limitations. Include meaningful automated checks if time permits; otherwise document how filtering and sorting are verified. |
+| ST-08 | Deployment & Documentation | 15 minutes | Deployed (developer-reported); final review pending | Vercel deployment, README instructions, improvement proposals, time recording and AI disclosure. Acceptance: with explicit deployment authorisation, verify the working preview; document setup, API usage, decisions, assumptions, proposed improvements, actual time, AI/tool use and unfinished work. Git operations remain developer-owned. |
 
 ## Decisions still needed
 
@@ -412,27 +413,44 @@ moderate development-tool findings and ESLint 9 support limitation remain record
 without claiming they were re-audited or resolved. Previous developer-reported
 Lighthouse/WAVE scores remain historical local evidence, not deployed results.
 
-### Remaining developer actions
+### Production deployment and initial acceptance (developer-reported)
 
-1. Review README and the final files; record ST-08 time and then calculate the
-   final total. Recorded effort through ST-07 is 4 hours 25 minutes, including
-   planning, AI-assisted work, troubleshooting, manual verification and review.
-2. Review Vercel settings before pushing main if Git integration may auto-deploy.
-   Commit/push the intended state yourself. Import the existing GitHub repository
-   if not linked; select Next.js, repository root, Node 26.x, npm ci, npm run build
-   and the default output directory. No application environment variables are needed.
-3. Deploy the reviewed revision yourself. Check logs, runtime settings and account
-   quotas, then record the real deployment URL. No deployment is performed here.
-4. On that URL, verify four mode counts, combined filtering/search/sort, reset,
-   disabled options, loading/no-match/error/retry states and source links. Check
-   cold/warm optimised image responses and upstream availability.
-5. Recheck desktop/mobile/intermediate layouts, keyboard/skip/focus, screen-reader
-   announcements, native dropdowns, zoom, WAVE and production Lighthouse. In
-   particular, rerun WAVE after the explicit Display/Sort label changes. Retained
-   home-link duplication and native popup limits are documented, not hidden.
+- Vercel project: `ryanh-mp-assessment`.
+- Public demonstration URL supplied by the developer:
+  [https://ryanh-mp-assessment.vercel.app](https://ryanh-mp-assessment.vercel.app).
+- Vercel reported a successful production deployment in **21 seconds**.
+  This is deployment duration, not ST-08 development time.
+- The developer manually opened and tested the live application and reports that
+  it works well. No individual hosted test cases, Lighthouse scores, WAVE results
+  or screen-reader checks were supplied for this deployment, so none are marked
+  passed on the strength of that general report.
+- Codex did not perform deployment, access Vercel settings or independently check
+  the supplied URL. Earlier preparation statements above describe the pre-deployment
+  stage; this update supersedes deployment-pending status.
+- Previous local validation remains unchanged: TypeScript PASS, ESLint PASS,
+  31 unit tests PASS, four production HTTP tests PASS and production build PASS.
+  No tests/builds were rerun for this documentation-only acceptance update.
+
+### Outstanding final acceptance items
+
+1. Review the final documentation and time record: **4 hours 25 minutes** through
+   ST-07 plus the developer-recorded **15 minutes** for ST-08 gives a final total
+   of **4 hours 40 minutes**. This includes planning, AI assistance, troubleshooting,
+   manual testing and review.
+2. Record any detailed production checks required for final acceptance: deployed
+   revision/settings, mode counts, combined controls, reset, error/retry behaviour,
+   source links and cold/warm image optimisation. The initial live-site check does
+   not establish which of these were individually exercised.
+3. Confirm any remaining real-device, keyboard, screen-reader, zoom, WAVE and
+   Lighthouse checks on the hosted revision. Existing scores are historical local
+   evidence, not new production measurements. Retained home-link duplication and
+   native popup limits remain documented.
+4. The developer owns the final review, commit and any subsequent deployment.
+   No Git operations were performed by Codex.
 
 Outstanding limitations: popularity needs an authoritative source mapping; official
 brand assets should replace the screenshot crop/system-font approximation when
-available; hosted image behaviour, account settings, ST-08 time and deployed
-acceptance remain unverified. No full WCAG conformance or production readiness
+available; detailed hosted image behaviour, account settings and final
+acceptance remain unconfirmed. Initial live-site verification is developer-reported
+successful. No full WCAG conformance or commercial production readiness
 beyond the assessment prototype is claimed. Stop for developer review.

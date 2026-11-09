@@ -5,6 +5,14 @@ and independently implemented presentation based on the supplied screenshots.
 It has a server-rendered initial listing and a small read-only API for interactions.
 No CMS, database, authentication or separate backend is required.
 
+**[Live demonstration](https://ryanh-mp-assessment.vercel.app)**
+
+Vercel project: `ryanh-mp-assessment`. The developer reports a successful production
+deployment in 21 seconds and has opened and tested the live application, reporting
+that it works well. This is initial developer-reported verification, not evidence
+that every production acceptance check below has been completed. Codex has not
+independently verified the supplied public URL or deployed application.
+
 ## Features
 
 - Products (46), Categories (36), Technologies (19) and Measurement Types (50).
@@ -192,10 +200,12 @@ decoding/painting. Compare development/production with identical settings and
 separate cold/warm caches. Cached network data does not guarantee decoded pixels
 stay resident. Remote asset availability and hosted optimisation still need review.
 
-## Manual Vercel deployment
+## Vercel deployment and repeatable setup
 
-Deployment is performed by the developer. No Vercel project or hosted preview was
-created or verified by Codex. Standard Next.js configuration needs no `vercel.json`;
+The developer has completed the production deployment described above. The steps
+below document setup for future deployments; they are not outstanding initial
+deployment tasks. Codex did not deploy or independently verify the site.
+Standard Next.js configuration needs no `vercel.json`;
 do not enable static export because the API and image optimiser require a runtime.
 See [Vercel's Git deployment guide](https://vercel.com/docs/git).
 
@@ -249,11 +259,16 @@ The developer should be prepared to explain and modify the submitted code.
 The assessment suggests approximately 2-4 hours. Recorded time through ST-07 is
 **4 hours 25 minutes**: 60 minutes planning/preparation and 205 minutes for
 ST-01-ST-07 implementation, troubleshooting, manual verification, testing and
-review, including AI-assisted work. ST-08 time is pending, so no final total is
-reported. See [the sprint record](docs/Sprint.md). ST-08 awaits final review and
-manual deployment.
+review, including AI-assisted work. ST-08 took **15 minutes**, bringing the final
+recorded total to **280 minutes (4 hours 40 minutes)**. See
+[the sprint record](docs/Sprint.md). Deployment is developer-reported successful;
+ST-08 awaits final documentation review.
 
-## Final manual acceptance
+## Detailed production acceptance checklist
+
+The developer's initial live-site check is reported successful. Individual checks
+below remain unconfirmed unless separately recorded; local validation results do
+not establish hosted results.
 
 - Confirm the deployed revision, HTTPS URL, install/build logs and runtime settings.
 - Check default counts 46/36/19/50, combined filters, name sorts, reset and source links.
@@ -261,4 +276,4 @@ manual deployment.
 - Inspect 375/768/1024/1440px, enlarged text and native dropdowns on a real device.
 - Check keyboard/skip/focus, screen-reader announcements, WAVE and production Lighthouse.
 - Verify cold/warm optimised images and API responses; record hosted limitations.
-- Add the deployment URL and recorded ST-08 time, then update the final total.
+- Review and accept the final documentation and recorded development time.

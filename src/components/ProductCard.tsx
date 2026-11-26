@@ -35,7 +35,8 @@ export function ProductCard({ product }: { product: ListingItem }) {
   );
 
   return (
-    <article className="product-card">
+    <article className="product-card ">
+      {/* <article className="product-card bg-red-200 shadow-xl"> */}
       {productUrl ? (
         <a className="product-card-content" href={productUrl} aria-labelledby={headingId}>
           {content}

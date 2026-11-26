@@ -9,11 +9,7 @@ export function GET(request: Request): Response {
     category: parameters.get("category"),
     technology: parameters.get("technology"),
     sort: parameters.get("sort"),
-    // Add server side pagination
-    // page: parameters.get("page"),
-	  // pageSize: parameters.get("pageSize"),
   };
-  console.log("ROUTE QUERY:", query);
   const mode = parameters.get("mode");
   const result = mode === null || mode === "products"
     ? queryProducts(getProducts(), query)

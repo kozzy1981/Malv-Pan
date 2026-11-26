@@ -7,21 +7,12 @@ export interface ProductQuery {
   category?: string | null;
   technology?: string | null;
   sort?: string | null;
-
-  // PAGINATION - Accept additional query parameters
-  // page?: string | null;
-  // pageSize?: string | null;
 }
 
 /** Successful results retain the original product records without projecting fields. */
 export interface ProductQueryResponse {
   products: readonly Product[];
   total: number;
-
-  // PAGINATION - Additional response metadata
-  // page?: number;
-  // pageSize?: number;
-  // totalPages?: number;
 }
 
 /** A deliberate query validation failure, returned by the route as HTTP 400. */
@@ -31,16 +22,7 @@ export interface ProductQueryError {
 
 /** Reuses the same accepted values and error contract for every display mode. */
 function validateSort(sort: string | null | undefined): ProductQueryError | null {
-  if (sort != null && sort !== "name-asc" && sort !== "name-desc")
-
-  // POPULARITY - Replace the above condition with this
-  // if (
-  //   sort != null &&
-  //   sort !== "name-asc" &&
-  //   sort !== "name-desc" &&
-  //   sort !== "popularity"
-  // )
-  {
+  if (sort != null && sort !== "name-asc" && sort !== "name-desc") {
     return { error: 'Invalid sort. Use "name-asc" or "name-desc", or omit sort.' };
   }
   return null;
@@ -57,26 +39,6 @@ export function queryProducts(
   query: ProductQuery = {},
 ): ProductQueryResponse | ProductQueryError {
   const { sort } = query;
-
-  console.log("PRODUCT QUERY:", query);
-
-  // PAGINATION - Determine whether pagination was requested
-  // const paginationRequested =
-  //   query.page != null || query.pageSize != null;
-
-  // PAGINATION - Apply default values
-  // const page = Number(query.page ?? "1");
-  // const pageSize = Number(query.pageSize ?? "12");
-
-  // PAGINATION - Validate parameters
-  // if (
-  //   !Number.isSafeInteger(page) || page < 1 ||
-  //   !Number.isSafeInteger(pageSize) ||
-  //   pageSize < 1 || pageSize > 100
-  // ) {
-  //   return { error: "Invalid pagination parameters." };
-  // }
-  // console.log({ paginationRequested, page, pageSize });
 
   const sortError = validateSort(sort);
   if (sortError) return sortError;
@@ -117,21 +79,6 @@ export function queryProducts(
     });
   }
 
-  // PAGINATION - Apply pagination AFTER filtering and sorting
-  // if (paginationRequested) {
-  //   const total = matchingProducts.length;
-  //   const start = (page - 1) * pageSize;
-  
-  //   return {
-  //     products: matchingProducts.slice(start, start + pageSize),
-  //     total,
-  //     page,
-  //     pageSize,
-  //      totalPages: Math.ceil(total / pageSize),
-  //    };
-  //  }
-
-  // Existing behaviour when pagination is not requested
   return { products: matchingProducts, total: matchingProducts.length };
 }
 
